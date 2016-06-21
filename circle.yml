@@ -19,11 +19,11 @@ dependencies:
   override:
     - mkdir -p ${GOPATH}/src/github.com/mesosphere/mesos-dns
     - go version
+    - go get -u github.com/kardianos/govendor
     - sudo mount --bind $PWD $GOPATH/src/github.com/mesosphere/mesos-dns
     - cd $GOPATH/src/github.com/mesosphere/mesos-dns && govendor sync
     - cd $GOPATH/src/github.com/mesosphere/mesos-dns && go install ./...
     - cd $GOPATH/src/github.com/mesosphere/mesos-dns && go test -i ./...
-    - go get -u github.com/kardianos/govendor
     - go get -u github.com/mitchellh/gox
     - go get -u github.com/tools/godep
     - go get -u github.com/alecthomas/gometalinter
