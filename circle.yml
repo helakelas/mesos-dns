@@ -11,24 +11,27 @@ machine:
     - go version
   services:
 
+
 dependencies:
-  pre:
+  cache_directories:
+    - "~/gopath"
+    - "~/go"
+  override:
     - mkdir -p ${GOPATH}/src/github.com/mesosphere/mesos-dns
     - go version
-    - go get github.com/kardianos/govendor
-    - go get github.com/mitchellh/gox
-    - go get github.com/tools/godep
-    - go get github.com/alecthomas/gometalinter
-    - go get github.com/axw/gocov/gocov # https://github.com/golang/go/issues/6909
-    - go get github.com/mattn/goveralls
-    - go get github.com/jstemmer/go-junit-report
     - sudo mount --bind $PWD $GOPATH/src/github.com/mesosphere/mesos-dns
-    - git describe --tags |tee VERSION
-    - gpg --yes --batch --import build/private.key
-  override:
     - cd $GOPATH/src/github.com/mesosphere/mesos-dns && govendor sync
     - cd $GOPATH/src/github.com/mesosphere/mesos-dns && go install ./...
     - cd $GOPATH/src/github.com/mesosphere/mesos-dns && go test -i ./...
+    - go get -u github.com/kardianos/govendor
+    - go get -u github.com/mitchellh/gox
+    - go get -u github.com/tools/godep
+    - go get -u github.com/alecthomas/gometalinter
+    - go get -u github.com/axw/gocov/gocov # https://github.com/golang/go/issues/6909
+    - go get -u github.com/mattn/goveralls
+    - go get -u github.com/jstemmer/go-junit-report
+    - git describe --tags |tee VERSION
+    - gpg --yes --batch --import build/private.key
     - gometalinter --install
     - cd $GOPATH/src/github.com/mesosphere/mesos-dns && gox -arch=amd64 -os="linux darwin windows" -output="${CIRCLE_ARTIFACTS}/{{.Dir}}-$(<VERSION)-{{.OS}}-{{.Arch}}" -ldflags="-X main.Version=$(<VERSION)"
     - if [ -n "$PASSPHRASE" ]; then for i in ${CIRCLE_ARTIFACTS}/*; do gpg --detach-sig --no-use-agent --yes --batch --passphrase=$PASSPHRASE -u mesos-dns --sign --armor $i; done; fi
